@@ -125,10 +125,12 @@
 
 (defun insert-translated-name-get-translation (word style)
   "Request WORD, return JSON as an alist if successes."
-  (url-retrieve
-   (format insert-translated-name-api-url (url-hexify-string word))
-   'insert-translated-name-retrieve-callback
-   (list style (current-buffer) (float-time))))
+  (let ((placeholder (insert-translated-name--generate-uuid)))
+    (insert placeholder)
+    (url-retrieve
+     (format insert-translated-name-api-url (url-hexify-string word))
+     'insert-translated-name-retrieve-callback
+     (list style (current-buffer) (float-time) placeholder))))
 
 (defun insert-translated-name-convert-translation (translation style)
   (let ((words (split-string translation " ")))
@@ -139,7 +141,7 @@
           ((string-equal style "camel")
            (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words))))))))
 
-(defun insert-translated-name-retrieve-callback (&optional redirect style insert-buffer retrieve-time)
+(defun insert-translated-name-retrieve-callback (&optional redirect style insert-buffer retrieve-time placeholder)
   (let ((retrieve-duration (- (float-time) retrieve-time))
         json word translation result)
     (set-buffer-multibyte t)
@@ -153,11 +155,18 @@
     (setq word (assoc-default 'query json))
     (setq translation (elt (assoc-default 'translation json) 0))
     (setq result (insert-translated-name-convert-translation translation style))
-    (if (< retrieve-duration 2)
-        (with-current-buffer insert-buffer
-          (insert result))
+    (with-current-buffer insert-buffer
+      (save-excursion
+        (goto-char (point-min))
+        (search-forward placeholder)
+        (replace-match result)))
+    (when (> retrieve-duration 2)
       (kill-new result)
       (message (format "Query %s (%s) more than %s seconds, please press C-y to insert" result word retrieve-duration)))))
+
+(defun insert-translated-name--generate-uuid ()
+  "Generate a 32 character UUID."
+  (md5 (number-to-string (float-time))))
 
 (provide 'insert-translated-name)
 
