@@ -88,13 +88,22 @@
   "http://fanyi.youdao.com/openapi.do?keyfrom=YouDaoCV&key=659600698&type=data&doctype=json&version=1.1&q=%s"
   "Youdao dictionary API template, URL `http://dict.youdao.com/'.")
 
+(defvar insert-translated-name-line-style-mode-list
+  '(web-mode emacs-lisp-mode))
+
+(defvar insert-translated-name-camel-style-mode-list
+  '(js-mode))
+
+(defvar insert-translated-name-underline-style-mode-list
+  '(ruby-mode))
+
 (defun insert-translated-name (word)
   (interactive "sTranslate with current mode style: ")
-  (cond ((derived-mode-p 'emacs-lisp-mode)
+  (cond ((remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) insert-translated-name-line-style-mode-list))
          (insert-translated-name-with-line word))
-        ((derived-mode-p 'web-mode)
+        ((remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) insert-translated-name-camel-style-mode-list))
          (insert-translated-name-with-camel word))
-        ((derived-mode-p 'ruby-mode)
+        ((remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) insert-translated-name-underline-style-mode-list))
          (insert-translated-name-with-underline word))
         (t
          (insert-translated-name-with-underline word))))
