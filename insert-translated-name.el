@@ -103,19 +103,20 @@
   (interactive "sTranslate with line style: ")
   (let* ((translation (insert-translated-name-get-translation word))
          (words (split-string translation " ")))
-    (insert (string-join (mapcar 'downcase words) "-"))))
+    (insert (string-join "-" (mapcar 'downcase words)))
+    ))
 
 (defun insert-translated-name-with-underline (word)
   (interactive "sTranslate with underline style: ")
   (let* ((translation (insert-translated-name-get-translation word))
          (words (split-string translation " ")))
-    (insert (string-join (mapcar 'downcase words) "_"))))
+    (insert (string-join "_" (mapcar 'downcase words)))))
 
 (defun insert-translated-name-with-camel (word)
   (interactive "sTranslate with camel style: ")
   (let* ((translation (insert-translated-name-get-translation word))
          (words (split-string translation " ")))
-    (insert (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words)))))))
+    (insert (concat (downcase (car words)) (string-join "" (mapcar 'capitalize (cdr words)))))))
 
 (defun insert-translated-name-get-translation (word)
   "Format request result of WORD."
