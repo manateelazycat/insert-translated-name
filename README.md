@@ -18,7 +18,8 @@ It's set in your ~/.emacs like this:
 
 ### Usage.
 
-| Command                                         | Description                                        |
-| :--------                                       | :----                                              |
-| insert-translated-name-with-underline           | Insert translation with underline style            |
-| insert-translated-name-with-camel               | Insert translation with camel style                        |
+| Command                               | Description                                    |
+| :--------                             | :----                                          |
+| insert-translated-name                | Insert translation with current language style |
+| insert-translated-name-with-underline | Insert translation with underline style        |
+| insert-translated-name-with-camel     | Insert translation with camel style            |

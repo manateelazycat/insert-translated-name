@@ -88,6 +88,23 @@
   "http://fanyi.youdao.com/openapi.do?keyfrom=YouDaoCV&key=659600698&type=data&doctype=json&version=1.1&q=%s"
   "Youdao dictionary API template, URL `http://dict.youdao.com/'.")
 
+(defun insert-translated-name (word)
+  (interactive "sTranslate with current mode style: ")
+  (cond ((derived-mode-p 'emacs-lisp-mode)
+         (insert-translated-name-with-line word))
+        ((derived-mode-p 'web-mode)
+         (insert-translated-name-with-camel word))
+        ((derived-mode-p 'ruby-mode)
+         (insert-translated-name-with-underline word))
+        (t
+         (insert-translated-name-with-underline word))))
+
+(defun insert-translated-name-with-line (word)
+  (interactive "sTranslate with line style: ")
+  (let* ((translation (insert-translated-name-get-translation word))
+         (words (split-string translation " ")))
+    (insert (string-join (mapcar 'downcase words) "-"))))
+
 (defun insert-translated-name-with-underline (word)
   (interactive "sTranslate with underline style: ")
   (let* ((translation (insert-translated-name-get-translation word))
