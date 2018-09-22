@@ -97,12 +97,6 @@
 (defvar insert-translated-name-underline-style-mode-list
   '(ruby-mode))
 
-(defvar insert-translated-name-retrieve-buffer nil)
-
-(defvar insert-translated-name-insert-buffer nil)
-
-(defvar insert-translated-name-retrieve-time nil)
-
 (defun insert-translated-name (word)
   (interactive "sTranslate with current mode style: ")
   (cond ((insert-translated-name-match-modes insert-translated-name-line-style-mode-list)
@@ -131,13 +125,10 @@
 
 (defun insert-translated-name-get-translation (word style)
   "Request WORD, return JSON as an alist if successes."
-  (setq insert-translated-name-retrieve-time (string-to-number (format-time-string "%s")))
-  (setq insert-translated-name-insert-buffer (current-buffer))
-  (setq insert-translated-name-retrieve-buffer
-        (url-retrieve
-         (format insert-translated-name-api-url (url-hexify-string word))
-         'insert-translated-name-retrieve-callback
-         (list style))))
+  (url-retrieve
+   (format insert-translated-name-api-url (url-hexify-string word))
+   'insert-translated-name-retrieve-callback
+   (list style (current-buffer) (float-time))))
 
 (defun insert-translated-name-convert-translation (translation style)
   (let ((words (split-string translation " ")))
@@ -148,23 +139,22 @@
           ((string-equal style "camel")
            (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words))))))))
 
-(defun insert-translated-name-retrieve-callback (&optional redirect style)
-  (let ((retrieve-duration (- (string-to-number (format-time-string "%s")) insert-translated-name-retrieve-time))
+(defun insert-translated-name-retrieve-callback (&optional redirect style insert-buffer retrieve-time)
+  (let ((retrieve-duration (- (float-time) retrieve-time))
         json word translation result)
-    (with-current-buffer insert-translated-name-retrieve-buffer
-      (set-buffer-multibyte t)
-      (goto-char (point-min))
-      (when (not (string-match "200 OK" (buffer-string)))
-        (error "Problem connecting to the server"))
-      (re-search-forward "^$" nil 'move)
-      (setq json (json-read-from-string
-                  (buffer-substring-no-properties (point) (point-max))))
-      (kill-buffer (current-buffer)))
+    (set-buffer-multibyte t)
+    (goto-char (point-min))
+    (when (not (string-match "200 OK" (buffer-string)))
+      (error "Problem connecting to the server"))
+    (re-search-forward "^$" nil 'move)
+    (setq json (json-read-from-string
+                (buffer-substring-no-properties (point) (point-max))))
+    (kill-buffer (current-buffer))
     (setq word (assoc-default 'query json))
     (setq translation (elt (assoc-default 'translation json) 0))
     (setq result (insert-translated-name-convert-translation translation style))
     (if (< retrieve-duration 2)
-        (with-current-buffer insert-translated-name-insert-buffer
+        (with-current-buffer insert-buffer
           (insert result))
       (kill-new result)
       (message (format "Query %s (%s) more than %s seconds, please press C-y to insert" result word retrieve-duration)))))
