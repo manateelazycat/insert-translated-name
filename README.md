@@ -1,4 +1,4 @@
-<img src="./screenshot/color-rg.png">
+<img src="./screenshot.png">
 
 # What is it?
 
