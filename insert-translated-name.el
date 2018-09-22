@@ -130,7 +130,7 @@
     (url-retrieve
      (format insert-translated-name-api-url (url-hexify-string word))
      'insert-translated-name-retrieve-callback
-     (list style (current-buffer) (float-time) placeholder))))
+     (list style (current-buffer) placeholder))))
 
 (defun insert-translated-name-convert-translation (translation style)
   (let ((words (split-string translation " ")))
@@ -141,9 +141,8 @@
           ((string-equal style "camel")
            (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words))))))))
 
-(defun insert-translated-name-retrieve-callback (&optional redirect style insert-buffer retrieve-time placeholder)
-  (let ((retrieve-duration (- (float-time) retrieve-time))
-        json word translation result)
+(defun insert-translated-name-retrieve-callback (&optional redirect style insert-buffer placeholder)
+  (let (json word translation result)
     (set-buffer-multibyte t)
     (goto-char (point-min))
     (when (not (string-match "200 OK" (buffer-string)))
@@ -159,10 +158,7 @@
       (save-excursion
         (goto-char (point-min))
         (search-forward placeholder)
-        (replace-match result)))
-    (when (> retrieve-duration 2)
-      (kill-new result)
-      (message (format "Query %s (%s) more than %s seconds, please press C-y to insert" result word retrieve-duration)))))
+        (replace-match result)))))
 
 (defun insert-translated-name--generate-uuid ()
   "Generate a 32 character UUID."
