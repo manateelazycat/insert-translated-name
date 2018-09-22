@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 0.1
-;; Last-Updated: 2018-09-22 10:54:16
+;; Version: 0.2
+;; Last-Updated: 2018-09-22 15:35:00
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -57,16 +57,16 @@
 
 ;;; Customize:
 ;;
-;;
-;;
-;; All of the above can customize by:
-;;      M-x customize-group RET insert-translated-name RET
+;; `insert-translated-name-line-style-mode-list'
+;; `insert-translated-name-underline-style-mode-list'
+;; `insert-translated-name-camel-style-mode-list'
 ;;
 
 ;;; Change log:
 ;;
 ;; 2018/09/22
 ;;      * First released.
+;;      * Change query translation asynchronous, don't insert buffer if query duration more than 2 seconds.
 ;;
 
 ;;; Acknowledgements:
@@ -97,6 +97,12 @@
 (defvar insert-translated-name-underline-style-mode-list
   '(ruby-mode))
 
+(defvar insert-translated-name-retrieve-buffer nil)
+
+(defvar insert-translated-name-insert-buffer nil)
+
+(defvar insert-translated-name-retrieve-time nil)
+
 (defun insert-translated-name (word)
   (interactive "sTranslate with current mode style: ")
   (cond ((remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) insert-translated-name-line-style-mode-list))
@@ -110,32 +116,39 @@
 
 (defun insert-translated-name-with-line (word)
   (interactive "sTranslate with line style: ")
-  (let* ((translation (insert-translated-name-get-translation word))
-         (words (split-string translation " ")))
-    (insert (string-join "-" (mapcar 'downcase words)))
-    ))
+  (insert-translated-name-get-translation word "line"))
 
 (defun insert-translated-name-with-underline (word)
   (interactive "sTranslate with underline style: ")
-  (let* ((translation (insert-translated-name-get-translation word))
-         (words (split-string translation " ")))
-    (insert (string-join "_" (mapcar 'downcase words)))))
+  (insert-translated-name-get-translation word "underline"))
 
 (defun insert-translated-name-with-camel (word)
   (interactive "sTranslate with camel style: ")
-  (let* ((translation (insert-translated-name-get-translation word))
-         (words (split-string translation " ")))
-    (insert (concat (downcase (car words)) (string-join "" (mapcar 'capitalize (cdr words)))))))
+  (insert-translated-name-get-translation word "camel"))
 
-(defun insert-translated-name-get-translation (word)
-  "Format request result of WORD."
-  (elt (assoc-default 'translation (insert-translated-name-request word)) 0))
-
-(defun insert-translated-name-request (word)
+(defun insert-translated-name-get-translation (word style)
   "Request WORD, return JSON as an alist if successes."
-  (let (json)
-    (with-current-buffer (url-retrieve-synchronously
-                          (format insert-translated-name-api-url (url-hexify-string word)))
+  (setq insert-translated-name-retrieve-time (string-to-number (format-time-string "%s")))
+  (setq insert-translated-name-insert-buffer (current-buffer))
+  (setq insert-translated-name-retrieve-buffer
+        (url-retrieve
+         (format insert-translated-name-api-url (url-hexify-string word))
+         'insert-translated-name-retrieve-callback
+         (list style))))
+
+(defun insert-translated-name-convert-translation (translation style)
+  (let ((words (split-string translation " ")))
+    (cond ((string-equal style "line")
+           (string-join (mapcar 'downcase words) "-"))
+          ((string-equal style "underline")
+           (string-join (mapcar 'downcase words) "_"))
+          ((string-equal style "camel")
+           (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words))))))))
+
+(defun insert-translated-name-retrieve-callback (&optional redirect style)
+  (let ((retrieve-duration (- (string-to-number (format-time-string "%s")) insert-translated-name-retrieve-time))
+        json word translation result)
+    (with-current-buffer insert-translated-name-retrieve-buffer
       (set-buffer-multibyte t)
       (goto-char (point-min))
       (when (not (string-match "200 OK" (buffer-string)))
@@ -144,7 +157,14 @@
       (setq json (json-read-from-string
                   (buffer-substring-no-properties (point) (point-max))))
       (kill-buffer (current-buffer)))
-    json))
+    (setq word (assoc-default 'query json))
+    (setq translation (elt (assoc-default 'translation json) 0))
+    (setq result (insert-translated-name-convert-translation translation style))
+    (if (< retrieve-duration 2)
+        (with-current-buffer insert-translated-name-insert-buffer
+          (insert result))
+      (kill-new result)
+      (message (format "Query %s (%s) more than %s seconds, please press C-y to insert" result word retrieve-duration)))))
 
 (provide 'insert-translated-name)
 
