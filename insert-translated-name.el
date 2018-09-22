@@ -1,4 +1,4 @@
-;;; insert-translated-name.el --- Insert translated string as variable or function name
+;;; insert-translated-name.el --- Insert translated string as variable or function name  -*- lexical-binding: t; -*-
 
 ;; Filename: insert-translated-name.el
 ;; Description: Insert translated string as variable or function name
