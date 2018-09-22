@@ -105,14 +105,17 @@
 
 (defun insert-translated-name (word)
   (interactive "sTranslate with current mode style: ")
-  (cond ((remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) insert-translated-name-line-style-mode-list))
+  (cond ((insert-translated-name-match-modes insert-translated-name-line-style-mode-list)
          (insert-translated-name-with-line word))
-        ((remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) insert-translated-name-camel-style-mode-list))
+        ((insert-translated-name-match-modes insert-translated-name-camel-style-mode-list)
          (insert-translated-name-with-camel word))
-        ((remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) insert-translated-name-underline-style-mode-list))
+        ((insert-translated-name-match-modes insert-translated-underline-camel-style-mode-list)
          (insert-translated-name-with-underline word))
         (t
          (insert-translated-name-with-underline word))))
+
+(defun insert-translated-name-match-modes (mode-list)
+  (cl-remove-if 'null (mapcar '(lambda (mode) (derived-mode-p mode)) mode-list)))
 
 (defun insert-translated-name-with-line (word)
   (interactive "sTranslate with line style: ")
