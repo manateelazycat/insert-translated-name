@@ -1,3 +1,5 @@
+<img src="./screenshot/color-rg.png">
+
 # What is it?
 
 My English is not very nice, I need query translation before I insert a suitable name in my code.
