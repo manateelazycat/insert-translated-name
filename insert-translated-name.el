@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 0.3
-;; Last-Updated: 2018-09-23 07:59:52
+;; Version: 0.4
+;; Last-Updated: 2018-09-23 08:26:53
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -67,6 +67,7 @@
 ;;
 ;; 2018/09/23
 ;;      * Store placeholder in buffer local's hash instead insert placeholder uuid in buffer.
+;;      * Make `insert-translated-name-replace-*' functions support region.
 ;;
 ;; 2018/09/22
 ;;      * First released.
@@ -138,7 +139,7 @@
 
 (defun insert-translated-name-replace ()
   (interactive)
-  (insert-translated-name-query-symbol
+  (insert-translated-name-replace-symbol
    (cond ((insert-translated-name-match-modes insert-translated-name-line-style-mode-list)
           "line")
          ((insert-translated-name-match-modes insert-translated-name-camel-style-mode-list)
@@ -150,20 +151,24 @@
 
 (defun insert-translated-name-replace-with-line ()
   (interactive)
-  (insert-translated-name-query-symbol "line"))
+  (insert-translated-name-replace-symbol "line"))
 
 (defun insert-translated-name-replace-with-underline ()
   (interactive)
-  (insert-translated-name-query-symbol "underline"))
+  (insert-translated-name-replace-symbol "underline"))
 
 (defun insert-translated-name-replace-with-camel ()
   (interactive)
-  (insert-translated-name-query-symbol "camel"))
+  (insert-translated-name-replace-symbol "camel"))
 
 ;;;;;;;;;;;;;;;;;;;;; Helper functions ;;;;;;;;;;;;;;;;;;;;;
-(defun insert-translated-name-query-symbol (style)
-  (let ((word (thing-at-point 'symbol)))
-    (thing-paste-symbol)
+(defun insert-translated-name-replace-symbol (style)
+  (let ((word (if (use-region-p)
+                  (buffer-substring-no-properties (region-beginning) (region-end))
+                (thing-at-point 'symbol))))
+    (if (use-region-p)
+        (kill-region (region-beginning) (region-end))
+      (thing-paste-symbol))
     (insert-translated-name-query-translation word style)))
 
 (defun insert-translated-name-match-modes (mode-list)
