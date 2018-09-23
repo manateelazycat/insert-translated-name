@@ -298,7 +298,7 @@ If no parse state is supplied, compute one from the beginning of the
     (url-retrieve
      (format insert-translated-name-api-url (url-hexify-string word))
      'insert-translated-name-retrieve-callback
-     (list word (or style insert-translated-name-active-style) (current-buffer) placeholder))
+     (list word style (current-buffer) placeholder))
     ))
 
 (defun insert-translated-name-convert-translation (translation style)
