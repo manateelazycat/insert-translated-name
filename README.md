@@ -1,4 +1,5 @@
 <img src="./screenshot.gif">
+<img src="./comment.gif">
 
 # What is it?
 
@@ -26,6 +27,9 @@ It's set in your ~/.emacs like this:
 | insert-translated-name-insert-with-underline  | Insert Chinese translation with underline style                     |
 | insert-translated-name-insert-with-camel      | Insert Chinese translation with camel style                         |
 | insert-translated-name-insert-with-line       | Insert Chinese translation with line style                          |
+|                                               |                                                                     |
+| isnert-translated-name-insert-comment         | Insert Chinese translation in comment or string                     |
+|                                               |                                                                     |
 | insert-translated-name-replace                | Replace Chinese symbol with translation with current language style |
 | insert-translated-name-replace-with-underline | Replace Chinese symbol with translation with underline style        |
 | insert-translated-name-replace-with-camel     | Replace Chinese symbol with translation with camel style            |
