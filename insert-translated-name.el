@@ -125,6 +125,10 @@
          (t
           "underline"))))
 
+(defun insert-translated-name-insert-comment ()
+  (interactive)
+  (insert-translated-name-active "comment"))
+
 (defun insert-translated-name-insert-with-line ()
   (interactive)
   (insert-translated-name-active "line"))
@@ -176,7 +180,8 @@
 
 (defun insert-translated-name-active (style)
   ;; Add monitor hook.
-  (add-hook 'after-change-functions 'insert-translated-name-monitor-change nil t)
+  (add-hook 'after-change-functions 'insert-translated-name-monitor-after-change nil t)
+  (add-hook 'pre-command-hook #'insert-translated-name-monitor-pre-command)
 
   ;; Make sure build hash to contain placeholder.
   (unless (boundp 'insert-translated-name-placeholder-hash)
@@ -196,36 +201,65 @@
   (overlay-put insert-translated-name-active-overlay 'face 'insert-translated-name-font-lock-mark-word)
 
   ;; Print play hint.
-  (message "Type Chinese and press SPACE to translate"))
+  (if (string-equal insert-translated-name-active-style "comment")
+      (message "Type Chinese and press SPACE to translate, type TAB to stop translate.")
+    (message "Type Chinese and press SPACE to translate.")))
 
 (defun insert-translated-name-inactive ()
+  (interactive)
   ;; Delete active overlay.
-  (delete-overlay insert-translated-name-active-overlay)
+  (when (and (boundp 'insert-translated-name-active-overlay)
+             insert-translated-name-active-overlay)
+    (delete-overlay insert-translated-name-active-overlay))
 
   ;; Clean active local variables.
   (set (make-local-variable 'insert-translated-name-active-point) nil)
-  (set (make-local-variable 'insert-translated-name-active-overlay) nil)
-  )
+  ;; (set (make-local-variable 'insert-translated-name-active-style) nil)
+  (when (and (boundp 'insert-translated-name-active-overlay)
+             insert-translated-name-active-overlay)
+    (set (make-local-variable 'insert-translated-name-active-overlay) nil)))
 
-(defun insert-translated-name-monitor-change (start end len)
+(defun insert-translated-name-monitor-pre-command ()
   (when (and (boundp 'insert-translated-name-active-point)
              insert-translated-name-active-point)
-    ;; Translate current Chinese words after press SPACE.
-    (if (string-equal (buffer-substring-no-properties start end) " ")
-        (let (
-              (word (buffer-substring-no-properties insert-translated-name-active-point (- (point) 1))))
-          ;; Delete Chinese words.
-          (kill-region insert-translated-name-active-point (point))
+    (let* ((event last-command-event)
+           (key (make-vector 1 event))
+           (key-desc (key-description key)))
+      (cond
+       ((and (string-equal insert-translated-name-active-style "comment")
+             (equal key-desc "TAB"))
+        ;; Inactive
+        (setq last-command-event nil)
+        (insert-translated-name-inactive)
+        (set (make-local-variable 'insert-translated-name-active-style) nil)
+        (message "End translate comment."))))))
 
-          ;; Inactive.
-          (insert-translated-name-inactive)
+(defun insert-translated-name-monitor-after-change (start end len)
+  (when (and (boundp 'insert-translated-name-active-point))
+    (if insert-translated-name-active-point
+        (cond
+         ;; Translate current Chinese words after press SPACE.
+         ((string-equal (buffer-substring-no-properties start end) " ")
+          (let ((word (buffer-substring-no-properties insert-translated-name-active-point (- (point) 1))))
+            ;; Delete Chinese words.
+            (kill-region insert-translated-name-active-point (point))
 
-          ;; Query translation.
-          (insert-translated-name-query-translation word)
-          )
-      ;; Update active overlay bound if user press any other non-SPACE character.
-      (move-overlay insert-translated-name-active-overlay insert-translated-name-active-point (point)))
-    ))
+            ;; Query translation.
+            (insert-translated-name-query-translation word insert-translated-name-active-style)
+
+            ;; Inactive.
+            (insert-translated-name-inactive)
+            ))
+         ;; Update active overlay bound if user press any other non-SPACE character.
+         (t
+          (move-overlay insert-translated-name-active-overlay insert-translated-name-active-point (point))))
+      (when (string-equal insert-translated-name-active-style "comment")
+        (let ((insert-char (buffer-substring-no-properties start end)))
+          (when (string-equal insert-char " ")
+            (insert-translated-name-active "comment")
+            ))))))
+
+;;
 
 (defun insert-translated-name-query-translation (word &optional style)
   (prin1 word)
@@ -247,7 +281,9 @@
           ((string-equal style "underline")
            (string-join (mapcar 'downcase words) "_"))
           ((string-equal style "camel")
-           (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words))))))))
+           (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words)))))
+          ((string-equal style "comment")
+           translation))))
 
 (defun insert-translated-name-retrieve-callback (&optional redirect word style insert-buffer placeholder)
   (let (json word translation result)
