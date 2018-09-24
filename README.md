@@ -34,3 +34,7 @@ It's set in your ~/.emacs like this:
 | insert-translated-name-replace-with-underline | Replace Chinese symbol with translation with underline style        |
 | insert-translated-name-replace-with-camel     | Replace Chinese symbol with translation with camel style            |
 | insert-translated-name-replace-with-line      | Replace Chinese symbol with translation with line style             |
+
+### Customize
+
+Default use google as translate engine, you can use ```insert-translated-name-translate-engine``` with "youdao" if you prefer it. ;)
