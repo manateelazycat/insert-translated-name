@@ -17,6 +17,14 @@
 3. 中文后输入空格自动查询翻译并替换成英文注释
 4. 可以继续打标点, 如果在注释区域继续打空格可以继续翻译, 周而复始, 直到按TAB解释循环翻译
 
+<img src="./pyim.gif">
+
+如果你安装了 [pyim](https://github.com/tumashu/pyim) 输入法，写英文注释的时候会自动激活切换输入法：
+1. 执行 ```insert-translated-name-insert``` 命令进入输入激活模式，并自动激活中文（不用手动切换中文输入法）
+2. 正常输入中文
+3. 中文后输入空格自动查询翻译并替换成英文注释（并自动切换成英文输入状态）
+4. 可以继续打标点, 如果在注释区域继续打空格可以继续翻译, 周而复始, 直到按TAB解释循环翻译
+
 ### 安装
 
 1.  下载 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name) 里面的 insert-translated-name.el 放到 ~/elisp 目录
