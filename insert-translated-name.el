@@ -67,8 +67,7 @@
 ;;; Change log:
 ;;
 ;; 2018/09/25
-;;      * Add `insert-translated-name-in-comment-buffer-p' option to make english assistants available in magit.
-;;      * Add `insert-translated-name-string-join' function that avoid namespace being polluted by other plugins (rails-lib.el redefine `string-join'.)
+;;      * Add `insert-translated-name-in-comment-buffer-p' option to make english assistants available in magit.     
 ;;
 ;; 2018/09/24
 ;;      * Add option `insert-translated-name-translate-engine' and default use Google.
@@ -311,18 +310,14 @@ If no parse state is supplied, compute one from the beginning of the
   (and (nth 4 (or state (insert-translated-name-current-parse-state)))
        t))
 
-(defsubst insert-translated-name-string-join (strings &optional separator)
-  "Join all STRINGS using SEPARATOR."
-  (mapconcat 'identity strings separator))
-
 (defun insert-translated-name-convert-translation (translation style)
   (let ((words (split-string translation " ")))
     (cond ((string-equal style "line")
-           (insert-translated-name-string-join (mapcar 'downcase words) "-"))
+           (string-join (mapcar 'downcase words) "-"))
           ((string-equal style "underline")
-           (insert-translated-name-string-join (mapcar 'downcase words) "_"))
+           (string-join (mapcar 'downcase words) "_"))
           ((string-equal style "camel")
-           (concat (downcase (car words)) (insert-translated-name-string-join (mapcar 'capitalize (cdr words)))))
+           (concat (downcase (car words)) (string-join (mapcar 'capitalize (cdr words)))))
           ((string-equal style "comment")
            translation))))
 
