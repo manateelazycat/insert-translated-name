@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 0.8
-;; Last-Updated: 2018-09-25 00:41:36
+;; Version: 0.9
+;; Last-Updated: 2018-09-25 11:25:19
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -67,7 +67,8 @@
 ;;; Change log:
 ;;
 ;; 2018/09/25
-;;      * Add `insert-translated-name-in-comment-buffer-p' option to make english assistants available in magit.     
+;;      * Add `insert-translated-name-in-commit-buffer-p' option to make english assistants available in magit.
+;;      * Make english assistants available in minibuffer.
 ;;
 ;; 2018/09/24
 ;;      * Add option `insert-translated-name-translate-engine' and default use Google.
@@ -125,7 +126,8 @@
   (interactive)
   (if (or (insert-translated-name-in-string-p)
           (insert-translated-name-in-comment-p)
-          (insert-translated-name-in-comment-buffer-p))
+          (insert-translated-name-in-commit-buffer-p)
+          (minibuffer-window-active-p (get-buffer-window)))
       (insert-translated-name-insert-comment)
     (insert-translated-name-active
      (cond ((insert-translated-name-match-modes insert-translated-name-line-style-mode-list)
@@ -288,7 +290,7 @@
     (beginning-of-defun)
     (parse-partial-sexp (point) point)))
 
-(defun insert-translated-name-in-comment-buffer-p ()
+(defun insert-translated-name-in-commit-buffer-p ()
   (and (string-equal (buffer-name) "COMMIT_EDITMSG")
        (save-excursion
          (goto-char (point-min))
