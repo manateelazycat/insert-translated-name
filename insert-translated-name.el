@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 1.1
-;; Last-Updated: 2018-09-26 13:12:43
+;; Version: 1.2
+;; Last-Updated: 2018-09-26 13:44:50
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -69,6 +69,7 @@
 ;; 2018/09/26
 ;;      * Add `insert-translated-name-use-original-translation'.
 ;;      * Nothing happen if input word is empty.
+;;      * Make `insert-translated-name-insert' support prefix arg.
 ;;
 ;; 2018/09/25
 ;;      * Add `insert-translated-name-in-commit-buffer-p' option to make english assistants available in magit.
@@ -126,9 +127,10 @@
   "The translate engine can use \"google\" or \"youdao\".")
 
 ;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;
-(defun insert-translated-name-insert ()
-  (interactive)
+(defun insert-translated-name-insert (arg)
+  (interactive "p")
   (if (or
+       (equal arg 4)
        (and (boundp 'insert-translated-name-original-translation)
             insert-translated-name-original-translation)
        (insert-translated-name-in-string-p)

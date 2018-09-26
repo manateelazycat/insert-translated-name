@@ -47,6 +47,14 @@
 | insert-translated-name-replace-with-camel          | 按照骆驼风格自动替换中文为翻译后的名字     |
 | insert-translated-name-replace-with-line           | 按照连接线风格自动替换中文为翻译后的名字   |
 
+```insert-translated-name-insert``` 命令会根据当前的环境来自动切换不同的翻译风格， 如果匹配下面的规则， 则直接使用返回的翻译结果：
+1. 当前模式如果设置了变量 ```insert-translated-name-original-translation``` （由函数 insert-translated-name-use-original-translation 设置）
+2. 在字符串或者注释中
+3. 在magit commit buffer 中
+4. 在minibuffer中
+
+当然，你也可以在调用命令 ```insert-translated-name-insert``` 之前按一下 C-u 也是可以的。 
+
 下面是各种语言预定的风格, 如果你不喜欢默认风格, 可以定制以下变量的内容:
 ```
 (defvar insert-translated-name-line-style-mode-list
