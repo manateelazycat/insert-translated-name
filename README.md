@@ -35,17 +35,17 @@
 ```
 
 ### 使用
-| 命令                               | 描述                                    |
-| :--------                             | :----                                          |
-| insert-translated-name-insert                | 按照当前语言风格自动插入翻译后的名字 |
-| insert-translated-name-insert-with-underline | 按照下划线风格自动插入翻译后的名字        |
-| insert-translated-name-insert-with-camel     | 按照骆驼风格自动插入翻译后的名字            |
-| insert-translated-name-insert-with-line      | 按照连接线风格自动插入翻译后的名字            |
-| insert-translated-name-insert-comment         | 按照当前语言风格自动插入翻译后的注释            |
-| insert-translated-name-replace                | 按照当前语言风格自动替换中文为翻译后的名字 |
-| insert-translated-name-replace-with-underline | 按照下划线风格自动替换中文为翻译后的名字        |
-| insert-translated-name-replace-with-camel     | 按照骆驼风格自动替换中文为翻译后的名字            |
-| insert-translated-name-replace-with-line      | 按照连接线风格自动替换中文为翻译后的名字            |
+| 命令                                               | 描述                                       |
+| :--------                                          | :----                                      |
+| insert-translated-name-insert                      | 按照当前语言风格自动插入翻译后的名字       |
+| insert-translated-name-insert-with-underline       | 按照下划线风格自动插入翻译后的名字         |
+| insert-translated-name-insert-with-camel           | 按照骆驼风格自动插入翻译后的名字           |
+| insert-translated-name-insert-with-line            | 按照连接线风格自动插入翻译后的名字         |
+| insert-translated-name-insert-original-translation | 按照当前语言风格自动插入翻译               |
+| insert-translated-name-replace                     | 按照当前语言风格自动替换中文为翻译后的名字 |
+| insert-translated-name-replace-with-underline      | 按照下划线风格自动替换中文为翻译后的名字   |
+| insert-translated-name-replace-with-camel          | 按照骆驼风格自动替换中文为翻译后的名字     |
+| insert-translated-name-replace-with-line           | 按照连接线风格自动替换中文为翻译后的名字   |
 
 下面是各种语言预定的风格, 如果你不喜欢默认风格, 可以定制以下变量的内容:
 ```
@@ -60,7 +60,18 @@
 ```
 
 ### 自定义
+
+#### 翻译引擎
 默认使用 google.cn 翻译(不需要梯子), 如果你更喜欢有道, 修改 ```insert-translated-name-translate-engine``` 的值为 "youdao" 即可.
 Google 的长句翻译更加准确一点.
 
 自己拯救自己的英语, 哒哒.
+
+#### 添加英文模式
+如果你想在其它模式激活 ```insert-translated-name-insert``` 的时候自动使用英文翻译， 而不是变量名， 可以用下面的方式来支持：
+```
+(dolist (hook (list
+               'atomic-chrome-edit-mode-hook
+               ))
+  (add-hook hook '(lambda () (insert-translated-name-use-original-translation))))
+```

@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 0.9
-;; Last-Updated: 2018-09-25 11:25:19
+;; Version: 1.0
+;; Last-Updated: 2018-09-26 09:23:26
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -66,6 +66,9 @@
 
 ;;; Change log:
 ;;
+;; 2018/09/26
+;;      * Add `insert-translated-name-use-original-translation'.
+;;
 ;; 2018/09/25
 ;;      * Add `insert-translated-name-in-commit-buffer-p' option to make english assistants available in magit.
 ;;      * Make english assistants available in minibuffer.
@@ -77,7 +80,7 @@
 ;; 2018/09/23
 ;;      * Store placeholder in buffer local's hash instead insert placeholder uuid in buffer.
 ;;      * Make `insert-translated-name-replace-*' functions support region.
-;;      * Call `insert-translated-name-insert-comment' when cursor in comment or string.
+;;      * Call `insert-translated-name-insert-original-translation' when cursor in comment or string.
 ;;
 ;; 2018/09/22
 ;;      * First released.
@@ -124,11 +127,14 @@
 ;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;
 (defun insert-translated-name-insert ()
   (interactive)
-  (if (or (insert-translated-name-in-string-p)
-          (insert-translated-name-in-comment-p)
-          (insert-translated-name-in-commit-buffer-p)
-          (minibuffer-window-active-p (get-buffer-window)))
-      (insert-translated-name-insert-comment)
+  (if (or
+       (and (boundp 'insert-translated-name-original-translation)
+            insert-translated-name-original-translation)
+       (insert-translated-name-in-string-p)
+       (insert-translated-name-in-comment-p)
+       (insert-translated-name-in-commit-buffer-p)
+       (minibuffer-window-active-p (get-buffer-window)))
+      (insert-translated-name-insert-original-translation)
     (insert-translated-name-active
      (cond ((insert-translated-name-match-modes insert-translated-name-line-style-mode-list)
             "line")
@@ -139,7 +145,7 @@
            (t
             "underline")))))
 
-(defun insert-translated-name-insert-comment ()
+(defun insert-translated-name-insert-original-translation ()
   (interactive)
   (insert-translated-name-active "comment"))
 
@@ -191,6 +197,9 @@
 
 (defun insert-translated-name-match-modes (mode-list)
   (cl-remove-if 'null (mapcar #'(lambda (mode) (derived-mode-p mode)) mode-list)))
+
+(defun insert-translated-name-use-original-translation ()
+  (set (make-local-variable 'insert-translated-name-original-translation) t))
 
 (defun insert-translated-name-active (style)
   ;; Enable pyim if user has load it.
