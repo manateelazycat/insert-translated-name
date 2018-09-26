@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 1.0
-;; Last-Updated: 2018-09-26 09:23:26
+;; Version: 1.1
+;; Last-Updated: 2018-09-26 13:12:43
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -68,6 +68,7 @@
 ;;
 ;; 2018/09/26
 ;;      * Add `insert-translated-name-use-original-translation'.
+;;      * Nothing happen if input word is empty.
 ;;
 ;; 2018/09/25
 ;;      * Add `insert-translated-name-in-commit-buffer-p' option to make english assistants available in magit.
@@ -352,13 +353,15 @@ If no parse state is supplied, compute one from the beginning of the
   (md5 (number-to-string (float-time))))
 
 (defun insert-translated-name-query-translation (word style)
-  (let ((placeholder (insert-translated-name-generate-uuid)))
-    ;; Store placeholder in hash.
-    (puthash placeholder (point) insert-translated-name-placeholder-hash)
+  (if (string-equal word "")
+      (message "Nothing input, cancel translate.")
+    (let ((placeholder (insert-translated-name-generate-uuid)))
+      ;; Store placeholder in hash.
+      (puthash placeholder (point) insert-translated-name-placeholder-hash)
 
-    ;; Query translation.
-    (insert-translated-name-retrieve-translation word style placeholder)
-    ))
+      ;; Query translation.
+      (insert-translated-name-retrieve-translation word style placeholder)
+      )))
 
 (defun insert-translated-name-retrieve-translation (word style placeholder)
   (cond ((string-equal insert-translated-name-translate-engine "youdao")
