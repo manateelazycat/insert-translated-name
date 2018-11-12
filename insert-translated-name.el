@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 1.3
-;; Last-Updated: 2018-11-12 09:40:33
+;; Version: 1.4
+;; Last-Updated: 2018-11-12 18:43:19
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;; Change log:
 ;;
 ;; 2018/11/12
+;;	* Remove Mac color, use hex color instead.
+;;
+;; 2018/11/12
 ;;	* Remove the function of continuous translation, it is not easy to use.
 ;;
 ;; 2018/09/26
@@ -113,7 +116,7 @@
   :group 'insert-translated-name)
 
 (defface insert-translated-name-font-lock-mark-word
-  '((t (:foreground "White" :background "SystemBlueColor" :bold t)))
+  '((t (:foreground "White" :background "#007aff" :bold t)))
   "Face for keyword match."
   :group 'insert-translated-name)
 
