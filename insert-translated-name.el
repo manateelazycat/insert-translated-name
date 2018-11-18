@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 1.5
-;; Last-Updated: 2018-11-18 08:07:40
+;; Version: 1.6
+;; Last-Updated: 2018-11-18 08:14:29
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -67,7 +67,7 @@
 ;;; Change log:
 ;;
 ;; 2018/11/18
-;;	* The region the translation is always from active position to the end of the line, even cursor is not at the end of the line.
+;;      * Refacotry to remove duplicate variable.
 ;;
 ;; 2018/11/12
 ;;      * Remove Mac color, use hex color instead.
@@ -266,9 +266,7 @@
   (when (and (boundp 'insert-translated-name-active-point))
     (if insert-translated-name-active-point
         (let ((translate-start insert-translated-name-active-point)
-              (translate-end (save-excursion
-                               (end-of-line)
-                               (point))))
+              (translate-end (point)))
           (cond
            ;; Translate current Chinese words after press SPACE.
            ((string-equal (buffer-substring-no-properties start end) " ")
