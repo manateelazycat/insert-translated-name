@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 1.4
-;; Last-Updated: 2018-11-12 18:43:19
+;; Version: 1.5
+;; Last-Updated: 2018-11-18 08:07:40
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -66,11 +66,14 @@
 
 ;;; Change log:
 ;;
-;; 2018/11/12
-;;	* Remove Mac color, use hex color instead.
+;; 2018/11/18
+;;	* The region the translation is always from active position to the end of the line, even cursor is not at the end of the line.
 ;;
 ;; 2018/11/12
-;;	* Remove the function of continuous translation, it is not easy to use.
+;;      * Remove Mac color, use hex color instead.
+;;
+;; 2018/11/12
+;;      * Remove the function of continuous translation, it is not easy to use.
 ;;
 ;; 2018/09/26
 ;;      * Add `insert-translated-name-use-original-translation'.
@@ -262,23 +265,25 @@
 (defun insert-translated-name-monitor-after-change (start end len)
   (when (and (boundp 'insert-translated-name-active-point))
     (if insert-translated-name-active-point
-        (cond
-         ;; Translate current Chinese words after press SPACE.
-         ((string-equal (buffer-substring-no-properties start end) " ")
-          (let ((word (buffer-substring-no-properties insert-translated-name-active-point (- (point) 1))))
-            ;; Delete Chinese words.
-            (kill-region insert-translated-name-active-point (point))
+        (let ((translate-start insert-translated-name-active-point)
+              (translate-end (save-excursion
+                               (end-of-line)
+                               (point))))
+          (cond
+           ;; Translate current Chinese words after press SPACE.
+           ((string-equal (buffer-substring-no-properties start end) " ")
+            (let ((word (buffer-substring-no-properties translate-start translate-end)))
+              ;; Delete Chinese words.
+              (kill-region translate-start translate-end)
 
-            ;; Query translation.
-            (insert-translated-name-query-translation word insert-translated-name-active-style)
+              ;; Query translation.
+              (insert-translated-name-query-translation word insert-translated-name-active-style)
 
-            ;; Inactive.
-            (insert-translated-name-inactive nil)
-            ))
-         ;; Update active overlay bound if user press any other non-SPACE character.
-         (t
-          (move-overlay insert-translated-name-active-overlay insert-translated-name-active-point (point))))
-      )))
+              ;; Inactive.
+              (insert-translated-name-inactive nil)))
+           ;; Update active overlay bound if user press any other non-SPACE character.
+           (t
+            (move-overlay insert-translated-name-active-overlay translate-start translate-end)))))))
 
 (defun insert-translated-name-current-parse-state ()
   "Return parse state of point from beginning of defun."
