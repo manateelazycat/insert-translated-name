@@ -51,10 +51,13 @@
 3. 在magit commit buffer 中
 4. 在minibuffer中
 
-当然，你也可以在调用命令 ```insert-translated-name-insert``` 之前按一下 C-u 也是可以的。 
+当然，你也可以在调用命令 ```insert-translated-name-insert``` 之前按一下 C-u 也是可以的。
 
 下面是各种语言预定的风格, 如果你不喜欢默认风格, 可以定制以下变量的内容:
 ```
+(defvar insert-translated-name-origin-style-mode-list
+  '(text-mode))
+
 (defvar insert-translated-name-line-style-mode-list
   '(web-mode emacs-lisp-mode))
 
