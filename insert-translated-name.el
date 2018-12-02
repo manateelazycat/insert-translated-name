@@ -309,7 +309,9 @@
 
 (defun insert-translated-name-in-string-p (&optional state)
   (or (nth 3 (or state (insert-translated-name-current-parse-state)))
-      (eq (get-text-property (point) 'face) 'font-lock-string-face)))
+      (eq (get-text-property (point) 'face) 'font-lock-string-face)
+      (eq (get-text-property (point) 'face) 'font-lock-doc-face)
+      ))
 
 (defun insert-translated-name-in-comment-p (&optional state)
   (or (nth 4 (or state (insert-translated-name-current-parse-state)))
