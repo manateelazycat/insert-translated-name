@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 1.8
-;; Last-Updated: 2018-12-02 23:24:18
+;; Version: 1.9
+;; Last-Updated: 2018-12-07 17:40:09
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -15,7 +15,7 @@
 ;;
 ;; Features that might be required by this library:
 ;;
-;;
+;; `json' `subr-x'
 ;;
 
 ;;; This file is NOT part of GNU Emacs
@@ -65,6 +65,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2018/12/07
+;;      * Add `json' and `subr-x' depend.
 ;;
 ;; 2018/12/02
 ;;      * Use `get-text-property' improve algorithm of `insert-translated-name-in-string-p' and `insert-translated-name-in-commit-p'
@@ -116,6 +119,8 @@
 ;;
 
 ;;; Require
+(require 'json)
+(require 'subr-x)
 
 ;;; Code:
 
