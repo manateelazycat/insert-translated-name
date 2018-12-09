@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 1.9
-;; Last-Updated: 2018-12-07 17:40:09
+;; Version: 2.0
+;; Last-Updated: 2018-12-09 20:45:21
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -65,6 +65,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2018/12/09
+;;      * Fix bug of `insert-translated-name-in-string-p' when cursor at left side of string.
 ;;
 ;; 2018/12/07
 ;;      * Add `json' and `subr-x' depend.
@@ -314,8 +317,12 @@
 
 (defun insert-translated-name-in-string-p (&optional state)
   (or (nth 3 (or state (insert-translated-name-current-parse-state)))
-      (eq (get-text-property (point) 'face) 'font-lock-string-face)
-      (eq (get-text-property (point) 'face) 'font-lock-doc-face)
+      (and
+       (eq (get-text-property (point) 'face) 'font-lock-string-face)
+       (eq (get-text-property (- (point) 1) 'face) 'font-lock-string-face))
+      (and
+       (eq (get-text-property (point) 'face) 'font-lock-doc-face)
+       (eq (get-text-property (- (point) 1) 'face) 'font-lock-doc-face))
       ))
 
 (defun insert-translated-name-in-comment-p (&optional state)
