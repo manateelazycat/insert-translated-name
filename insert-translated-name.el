@@ -224,7 +224,7 @@
                 (thing-at-point 'symbol))))
     (if (use-region-p)
         (kill-region (region-beginning) (region-end))
-      (thing-paste-symbol))
+      (kill-region (beginning-of-thing 'symbol) (end-of-thing 'symbol)))
     (insert-translated-name-query-translation word style)))
 
 (defun insert-translated-name-match-modes (mode-list)
