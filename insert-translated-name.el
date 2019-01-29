@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 2.0
-;; Last-Updated: 2018-12-09 20:45:21
+;; Version: 2.1
+;; Last-Updated: 2019-01-29 19:33:42
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -65,6 +65,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/01/29
+;;      * Add `inferior-emacs-lisp-mode' in `insert-translated-name-line-style-mode-list'.
 ;;
 ;; 2018/12/09
 ;;      * Fix bug of `insert-translated-name-in-string-p' when cursor at left side of string.
@@ -141,7 +144,7 @@
   '(text-mode))
 
 (defvar insert-translated-name-line-style-mode-list
-  '(web-mode emacs-lisp-mode))
+  '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode))
 
 (defvar insert-translated-name-camel-style-mode-list
   '(js-mode))
