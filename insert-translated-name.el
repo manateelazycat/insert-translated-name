@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 2.1
-;; Last-Updated: 2019-01-29 19:33:42
+;; Version: 2.2
+;; Last-Updated: 2019-02-20 11:13:44
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -65,6 +65,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/02/20
+;;      * Add go-mode in `insert-translated-name-camel-style-mode-list'.
 ;;
 ;; 2019/01/29
 ;;      * Add `inferior-emacs-lisp-mode' in `insert-translated-name-line-style-mode-list'.
@@ -147,7 +150,7 @@
   '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode))
 
 (defvar insert-translated-name-camel-style-mode-list
-  '(js-mode))
+  '(js-mode go-mode))
 
 (defvar insert-translated-name-underline-style-mode-list
   '(ruby-mode))
