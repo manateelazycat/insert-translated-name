@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 2.2
-;; Last-Updated: 2019-02-20 11:13:44
+;; Version: 2.3
+;; Last-Updated: 2019-03-16 17:58:43
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -65,6 +65,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/03/16
+;;      * Don't print notify message if current cursor in minibuffer.
 ;;
 ;; 2019/02/20
 ;;      * Add go-mode in `insert-translated-name-camel-style-mode-list'.
@@ -265,7 +268,8 @@
   (overlay-put insert-translated-name-active-overlay 'face 'insert-translated-name-font-lock-mark-word)
 
   ;; Print play hint.
-  (message "Type Chinese and press SPACE to translate."))
+  (unless (minibuffer-window-active-p (get-buffer-window))
+    (message "Type Chinese and press SPACE to translate.")))
 
 (defun insert-translated-name-inactive (&optional keep-style)
   (interactive)
