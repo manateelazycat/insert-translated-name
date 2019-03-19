@@ -66,6 +66,9 @@
 
 ;;; Change log:
 ;;
+;; 2019/03/19
+;;      * Add css-mode in line style.
+;;
 ;; 2019/03/16
 ;;      * Don't print notify message if current cursor in minibuffer.
 ;;
@@ -150,7 +153,7 @@
   '(text-mode))
 
 (defvar insert-translated-name-line-style-mode-list
-  '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode))
+  '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode css-mode))
 
 (defvar insert-translated-name-camel-style-mode-list
   '(js-mode go-mode))
