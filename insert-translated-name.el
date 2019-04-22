@@ -164,6 +164,8 @@
 (defvar insert-translated-name-translate-engine "google"
   "The translate engine can use \"google\" or \"youdao\".")
 
+(defvar insert-translated-name-default-style "underline"
+  "The default translation style, which can be set to \"origin\", \"line\", \"camel\" or \"underline\".")
 ;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;
 (defun insert-translated-name-insert (arg)
   (interactive "p")
@@ -187,7 +189,7 @@
       ((insert-translated-name-match-modes insert-translated-name-underline-style-mode-list)
        "underline")
       (t
-       "underline")))))
+       insert-translated-name-default-style)))))
 
 (defun insert-translated-name-insert-original-translation ()
   (interactive)
@@ -215,7 +217,7 @@
          ((insert-translated-name-match-modes insert-translated-name-underline-style-mode-list)
           "underline")
          (t
-          "underline"))))
+          insert-translated-name-default-style))))
 
 (defun insert-translated-name-replace-with-line ()
   (interactive)
@@ -379,6 +381,12 @@
       (message "Nothing input, cancel translate.")
     (let ((placeholder (insert-translated-name-generate-uuid)))
       ;; Store placeholder in hash.
+      ;; bug: `insert-translated-name-placeholder-hash' is not initialized
+      ;; thus I add such fix
+      
+      (unless (boundp 'insert-translated-name-placeholder-hash)
+        (set (make-local-variable 'insert-translated-name-placeholder-hash) (make-hash-table :test 'equal)))
+      
       (puthash placeholder (point) insert-translated-name-placeholder-hash)
 
       ;; Query translation.
