@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 2.3
-;; Last-Updated: 2019-03-16 17:58:43
+;; Version: 2.4
+;; Last-Updated: 2020-03-22 22:48:58
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -65,6 +65,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2020/03/22
+;;      * Use `default-input-method' instead pyim method.
 ;;
 ;; 2019/03/19
 ;;      * Add css-mode in line style.
@@ -248,9 +251,8 @@
   (set (make-local-variable 'insert-translated-name-original-translation) t))
 
 (defun insert-translated-name-active (style)
-  ;; Enable pyim if user has load it.
-  (when (featurep 'pyim)
-    (activate-input-method "pyim"))
+  ;; Enable input method if user has load it.
+  (activate-input-method default-input-method)
 
   ;; Add monitor hook.
   (add-hook 'after-change-functions 'insert-translated-name-monitor-after-change nil t)
@@ -278,9 +280,8 @@
 
 (defun insert-translated-name-inactive (&optional keep-style)
   (interactive)
-  ;; Disable pyim if user has load it.
-  (when (featurep 'pyim)
-    (deactivate-input-method))
+  ;; Disable input method if user has load it.
+  (deactivate-input-method)
 
   ;; Delete active overlay.
   (when (and (boundp 'insert-translated-name-active-overlay)
@@ -383,10 +384,10 @@
       ;; Store placeholder in hash.
       ;; bug: `insert-translated-name-placeholder-hash' is not initialized
       ;; thus I add such fix
-      
+
       (unless (boundp 'insert-translated-name-placeholder-hash)
         (set (make-local-variable 'insert-translated-name-placeholder-hash) (make-hash-table :test 'equal)))
-      
+
       (puthash placeholder (point) insert-translated-name-placeholder-hash)
 
       ;; Query translation.
