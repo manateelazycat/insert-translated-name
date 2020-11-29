@@ -156,7 +156,7 @@
   '(text-mode))
 
 (defvar insert-translated-name-line-style-mode-list
-  '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode css-mode))
+  '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode css-mode erc-mode rcirc-mode))
 
 (defvar insert-translated-name-camel-style-mode-list
   '(js-mode go-mode))
