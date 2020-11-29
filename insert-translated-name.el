@@ -153,10 +153,10 @@
   :group 'insert-translated-name)
 
 (defvar insert-translated-name-origin-style-mode-list
-  '(text-mode))
+  '(text-mode erc-mode rcirc-mode))
 
 (defvar insert-translated-name-line-style-mode-list
-  '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode css-mode erc-mode rcirc-mode))
+  '(web-mode emacs-lisp-mode inferior-emacs-lisp-mode css-mode))
 
 (defvar insert-translated-name-camel-style-mode-list
   '(js-mode go-mode))
