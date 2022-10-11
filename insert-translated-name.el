@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
-;; Version: 2.4
-;; Last-Updated: 2020-03-22 22:48:58
+;; Version: 3.0
+;; Last-Updated: 2022-10-11 22:48:58
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -65,6 +65,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2022/10/11
+;;      * Use `deno-bridge' fetch translation.
 ;;
 ;; 2020/03/22
 ;;      * Use `default-input-method' instead pyim method.
@@ -139,6 +142,7 @@
 ;;; Require
 (require 'json)
 (require 'subr-x)
+(require 'deno-bridge)
 
 ;;; Code:
 
@@ -163,9 +167,6 @@
 
 (defvar insert-translated-name-underline-style-mode-list
   '(ruby-mode))
-
-(defvar insert-translated-name-translate-engine "google"
-  "The translate engine can use \"google\" or \"youdao\".")
 
 (defvar insert-translated-name-default-style "underline"
   "The default translation style, which can be set to \"origin\", \"line\", \"camel\" or \"underline\".")
@@ -394,227 +395,11 @@
       (insert-translated-name-retrieve-translation word style placeholder)
       )))
 
+(setq deno-translator-ts-path (concat (file-name-directory load-file-name) "insert-translated-name.ts"))
+(deno-bridge-start "insert-translated-name" deno-translator-ts-path "9292" "9293")
+
 (defun insert-translated-name-retrieve-translation (word style placeholder)
-  (cond ((string-equal insert-translated-name-translate-engine "youdao")
-         (url-retrieve
-          (insert-translated-name-youdao-build-url word)
-          'insert-translated-name-youdao-retrieve-callback
-          (list word style (current-buffer) placeholder)))
-        ((string-equal insert-translated-name-translate-engine "google")
-         (url-retrieve
-          (insert-translated-name-google-build-url word)
-          'insert-translated-name-google-retrieve-callback
-          (list word style (current-buffer) placeholder)))
-        ))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;; Google API ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconst insert-translated-name-google-api-url
-  "http://translate.google.cn/translate_a/single")
-
-(defconst insert-translated-name-google-translate-bit-v-len 32)
-
-(defun insert-translated-name-google-retrieve-callback (&optional redirect word style insert-buffer placeholder)
-  (let (json word translation result)
-    ;; Get translation.
-    (set-buffer-multibyte t)
-    (goto-char (point-min))
-    (re-search-forward (format "\n\n"))
-    (delete-region (point-min) (point))
-    (prog1
-        (setq translation (elt (elt (elt (json-read-from-string (buffer-string)) 0) 0) 0))
-      (kill-buffer))
-
-    ;; Insert result with placeholder point.
-    (insert-translated-name-update-translation-in-buffer word style translation insert-buffer placeholder)))
-
-(defun insert-translated-name-google-translate-prepare-text-for-request (text)
-  "Make TEXT as clean as possible berofe sending it in the
-request."
-  (insert-translated-name-google-translate-trim-string
-   (insert-translated-name-google-translate-strip-string text)))
-
-(defun insert-translated-name-google-translate-trim-string (string)
-  "Remove whitespaces in beginning and ending of STRING.
-  White space here is any of: space, tab, emacs newline (line feed, ASCII 10)."
-  (replace-regexp-in-string "\\`[ \t\n\r]*" ""
-                            (replace-regexp-in-string "[ \t\n\r]*\\'" "" string)))
-
-(defun insert-translated-name-google-translate-strip-string (string)
-  "Replace spaces, tabs, line feeds (ASCII 10) and carridge
-returns (ASCII 13) by a single space symbol."
-  (replace-regexp-in-string "[[:space:]\n\r]+" " " string))
-
-(defun insert-translated-name-google-build-url (text)
-  (insert-translated-name-google-translate-format-request-url
-   `(("client" . "t")
-     ("ie"     . "UTF-8")
-     ("oe"     . "UTF-8")
-     ("sl"     . "zh-CN")
-     ("tl"     . "en")
-     ("q"      . ,text)
-     ("dt"     . "bd")
-     ("dt"     . "ex")
-     ("dt"     . "ld")
-     ("dt"     . "md")
-     ("dt"     . "qc")
-     ("dt"     . "rw")
-     ("dt"     . "rm")
-     ("dt"     . "ss")
-     ("dt"     . "t")
-     ("dt"     . "at")
-     ("pc"     . "1")
-     ("otf"    . "1")
-     ("srcrom" . "1")
-     ("ssel"   . "0")
-     ("tsel"   . "0")
-     ("tk"     . ,(insert-translated-name-google-translate-gen-tk text)))))
-
-(defun insert-translated-name-google-translate-format-request-url (query-params)
-  "Format QUERY-PARAMS as a Google Translate HTTP request URL.
-
-QUERY-PARAMS must be an alist of field-value pairs."
-  (concat insert-translated-name-google-api-url
-          "?"
-          (insert-translated-name-google-translate-format-query-string query-params)))
-
-(defun insert-translated-name-google-translate-gen-tk (text &optional b-d1)
-  (setq b-d1 (or b-d1 (insert-translated-name-google-translate-get-b-d1)))
-  (let* ((b (cl-first b-d1))
-         (d1 (cl-second b-d1))
-         (ub "+-3^+b+-f")
-         (vb "+-a^+6")
-         (a (cl-reduce (lambda (a e) (insert-translated-name-google-translate-gen-rl (+ a e) vb))
-                       (encode-coding-string text 'utf-8) :initial-value b)))
-    (setq a (insert-translated-name-google-translate-gen-rl a ub))
-    (setq a (insert-translated-name-google-translate-logxor a d1))
-    (when (< a 0) ;; (abs a) + 2^31
-      (setq a (+ (insert-translated-name-google-translate-logand a 2147483647.0) 2147483648.0)))
-    (setq a (ffloor (mod a 1e6)))
-    (format "%s.%s"
-            (car (split-string (number-to-string a) "\\."))
-            (car (split-string (number-to-string (insert-translated-name-google-translate-logxor a b)) "\\.")))))
-
-(defun insert-translated-name-google-translate-get-b-d1 ()
-  ;; TKK='427110.1469889687'
-  (list 427110 1469889687))
-
-(defun insert-translated-name-google-translate-gen-rl (a b)
-  (cl-loop for c from 0 below (- (length b) 2) by 3
-           for d = (aref b (+ c 2)) do
-           (setq d (if (>= d ?a) (- d 87) (- d ?0)))
-           (setq d (if (= (aref b (1+ c)) ?+)
-                       (insert-translated-name-google-translate-lsh a (- d))
-                     (insert-translated-name-google-translate-lsh a d)))
-           (setq a (if (= (aref b c) ?+)
-                       (insert-translated-name-google-translate-logand (+ a d) 4294967295.0)
-                     (insert-translated-name-google-translate-logxor a d))))
-  a)
-
-(defun insert-translated-name-google-translate-lsh (n d)
-  "Return a floating-point number.
-Shift the bits in N to the left or rihgt D places.
-D is an integer."
-  (let ((v (insert-translated-name-google-translate-number-to-bit-v n))
-        (v-result (make-vector insert-translated-name-google-translate-bit-v-len 0)))
-    (if (< d 0) ;; Shift Right Logical
-        ;; [x0 x1 ... xn-d ... xn] => [0 ... 0 x0 x1 ... xn-d]
-        (cl-loop for i from (abs d) below insert-translated-name-google-translate-bit-v-len
-                 for j from 0 do
-                 (aset v-result i (aref v j)))
-      ;; Shift Left Logical
-      ;; [x0 x1 ... xd ... xn] => [xd ... xn 0 ... 0]
-      (cl-loop for i from d below insert-translated-name-google-translate-bit-v-len
-               for j from 0 do
-               (aset v-result j (aref v i))))
-    (insert-translated-name-google-translate-bit-v-to-number v-result)))
-
-(defun insert-translated-name-google-translate-number-to-bit-v (n)
-  "Return a bit vector from N."
-  (if (< n 0) (insert-translated-name-google-translate-bit-v-2comp
-               (insert-translated-name-google-translate-number-to-bit-v (abs n)))
-    (let ((v (make-vector insert-translated-name-google-translate-bit-v-len 0)))
-      (cl-loop for i downfrom (1- insert-translated-name-google-translate-bit-v-len) to 0
-               with q
-               when (< n 1) return nil do
-               (setq q (ffloor (* n 0.5)))
-               (aset v i (floor (- n (* 2.0 q))))
-               (setq n q))
-      v)))
-
-(defun insert-translated-name-google-translate-bit-v-to-number (v)
-  "Return a floating-point number from V."
-  (if (and (> (aref v 0) 0)
-           ;; Exclude [1 0 ... 0]
-           (cl-loop for i from 1 below insert-translated-name-google-translate-bit-v-len
-                    thereis (> (aref v i) 0)))
-      (- (insert-translated-name-google-translate-bit-v-to-number (insert-translated-name-google-translate-bit-v-2comp v)))
-    (funcall (if (> (aref v 0) 0)  #'- #'+)
-             (cl-reduce (lambda (acc e) (+ (* acc 2.0) e))
-                        v :initial-value 0.0))))
-
-(defun insert-translated-name-google-translate-logand (n1 n2)
-  "Return a floating-point number from N1 and N2."
-  (insert-translated-name-google-translate-logfn #'logand n1 n2))
-
-(defun insert-translated-name-google-translate-logfn (fn n1 n2)
-  "Helper function for logical FN."
-  (let ((v1 (insert-translated-name-google-translate-number-to-bit-v n1))
-        (v2 (insert-translated-name-google-translate-number-to-bit-v n2))
-        (v (make-vector insert-translated-name-google-translate-bit-v-len 0)))
-    (cl-loop for i from 0 below insert-translated-name-google-translate-bit-v-len do
-             (aset v i (funcall fn (aref v1 i) (aref v2 i))))
-    (insert-translated-name-google-translate-bit-v-to-number v)))
-
-(defun insert-translated-name-google-translate-logxor (n1 n2)
-  "Return a floating-point number from N1 and N2."
-  (insert-translated-name-google-translate-logfn #'logxor n1 n2))
-
-(defun insert-translated-name-google-translate-bit-v-2comp (v)
-  "Return the two's complement of V."
-  (let* ((vc (vconcat v))
-         (len (length vc)))
-    ;; Complement of v
-    (cl-loop for i from 0 below len do
-             (aset vc i (logxor (aref vc i) 1)))
-    ;; vc = complement of v + 1
-    (cl-loop for i downfrom (1- len) to 0
-             do (aset vc i (logxor (aref vc i) 1))
-             when (> (aref vc i) 0) return nil)
-    vc))
-
-(defun insert-translated-name-google-translate-format-query-string (query-params)
-  "Format QUERY-PARAMS as a query string.
-
-QUERY-PARAMS must be an alist of field-value pairs."
-  (mapconcat #'(lambda (p)
-                 (format "%s=%s"
-                         (url-hexify-string (car p))
-                         (url-hexify-string (cdr p))))
-             query-params "&"))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;; Youdao API ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconst insert-translated-name-youdao-api-url
-  "http://fanyi.youdao.com/openapi.do?keyfrom=YouDaoCV&key=659600698&type=data&doctype=json&version=1.1&q=%s"
-  "Youdao dictionary API template, URL `http://dict.youdao.com/'.")
-
-(defun insert-translated-name-youdao-build-url (word)
-  (format insert-translated-name-youdao-api-url (url-hexify-string word)))
-
-(defun insert-translated-name-youdao-retrieve-callback (&optional redirect word style insert-buffer placeholder)
-  (let (json word translation result)
-    ;; Get translation.
-    (set-buffer-multibyte t)
-    (goto-char (point-min))
-    (when (not (string-match "200 OK" (buffer-string)))
-      (error "Problem connecting to the server"))
-    (re-search-forward "^$" nil 'move)
-    (setq json (json-read-from-string
-                (buffer-substring-no-properties (point) (point-max))))
-    (kill-buffer (current-buffer))
-    (setq translation (elt (assoc-default 'translation json) 0))
-
-    ;; Insert result with placeholder point.
-    (insert-translated-name-update-translation-in-buffer word style translation insert-buffer placeholder)))
+  (deno-bridge-call "insert-translated-name" word style (buffer-name) placeholder))
 
 (provide 'insert-translated-name)
 

@@ -1,6 +1,6 @@
 对于我这种英语渣来说, 有时候给一个函数或者变量取一个适当的名字还是比较麻烦的, 一般都要打开 Google 翻译, 翻译一段中文, 然后拷贝到 Emacs 中做各种修改, 改成下划线或者骆驼风格的形式, 甚至直接翻译成英文注释.
 
-给Emacs写了一个小插件 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name)
+给 Emacs 写了一个小插件 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name)
 
 <img src="./screenshot.gif">
 
@@ -25,8 +25,9 @@
 
 ### 安装
 
-1.  下载 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name) 里面的 insert-translated-name.el 放到 ~/elisp 目录
-2.  把下面的配置加入到 ~/.emacs 中
+1. 安装[deno-bridge](https://github.com/manateelazycat/deno-bridge)
+2.  下载 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name) 里面的 insert-translated-name.el 放到 ~/elisp 目录
+3.  把下面的配置加入到 ~/.emacs 中
 ```
 (add-to-list 'load-path (expand-file-name "~/elisp"))
 (require 'insert-translated-name)
@@ -48,8 +49,8 @@
 ```insert-translated-name-insert``` 命令会根据当前的环境来自动切换不同的翻译风格， 如果匹配下面的规则， 则直接使用返回的翻译结果：
 1. 当前模式如果设置了变量 ```insert-translated-name-original-translation``` （由函数 insert-translated-name-use-original-translation 设置）
 2. 在字符串或者注释中
-3. 在magit commit buffer 中
-4. 在minibuffer中
+3. 在 magit commit buffer 中
+4. 在 minibuffer 中
 
 当然，你也可以在调用命令 ```insert-translated-name-insert``` 之前按一下 C-u 也是可以的。
 
@@ -69,12 +70,6 @@
 ```
 
 ### 自定义
-
-#### 翻译引擎
-默认使用 google.cn 翻译(不需要梯子), 如果你更喜欢有道, 修改 ```insert-translated-name-translate-engine``` 的值为 "youdao" 即可.
-Google 的长句翻译更加准确一点.
-
-自己拯救自己的英语, 哒哒.
 
 #### 添加英文模式
 如果你想在其它模式激活 ```insert-translated-name-insert``` 的时候自动使用英文翻译， 而不是变量名， 可以用下面的方式来支持：
