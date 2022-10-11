@@ -396,7 +396,7 @@
       )))
 
 (setq deno-translator-ts-path (concat (file-name-directory load-file-name) "insert-translated-name.ts"))
-(deno-bridge-start "insert-translated-name" deno-translator-ts-path "9292" "9293")
+(deno-bridge-start "insert-translated-name" deno-translator-ts-path)
 
 (defun insert-translated-name-retrieve-translation (word style placeholder)
   (deno-bridge-call "insert-translated-name" word style (buffer-name) placeholder))
