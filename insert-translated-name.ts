@@ -4,13 +4,8 @@ import puppeteer from "https://deno.land/x/pptr@1.2.0/mod.ts";
 const bridge = new DenoBridge(Deno.args[0], Deno.args[1], Deno.args[2], messageDispatcher)
 
 async function messageDispatcher(message: string) {
-    const args = JSON.parse(message)
+    const [content, style, buffername, placeholder] = JSON.parse(message)[1]
 
-    const content = args[0]
-    const style = args[1][0]
-    const buffername = args[1][1]
-    const placeholder = args[1][2]
-    
     bridge.messageToEmacs("Insert translation...")
     // Clean translation textarea to wait next translation.
     await page.$eval('.lmt__target_textarea', el => el.value = '')
