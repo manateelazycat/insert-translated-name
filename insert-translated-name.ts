@@ -5,28 +5,40 @@ const bridge = new DenoBridge(Deno.args[0], Deno.args[1], Deno.args[2], messageD
 
 async function messageDispatcher(message: string) {
     const args = JSON.parse(message)
-    
-    const string = args[0]
+
+    const content = args[0]
     const style = args[1][0]
     const buffername = args[1][1]
     const placeholder = args[1][2]
     
     bridge.messageToEmacs("Insert translation...")
-    await page.goto('https://www.deepl.com/translator');
-    await page.type('.lmt__source_textarea', string)
+    // Clean translation textarea to wait next translation.
+    await page.$eval('.lmt__target_textarea', el => el.value = '')
     
+    // Fill content in input textarea.
+    await page.$eval('.lmt__source_textarea', (el, content) => {
+        el.value = content
+    }, content)
+    
+    // Type Enter to trigger send translation request
+    await page.type('.lmt__source_textarea', "\n") 
+
     bridge.messageToEmacs("Waiting translation...")
+    // Wait translation.
     await page.waitForFunction('document.querySelector(".lmt__target_textarea").value != ""');
     const translation = await page.$eval(".lmt__target_textarea", el => el.value.trim())
-    
+
     bridge.messageToEmacs("Finish translate.")
-    bridge.evalInEmacs(`(insert-translated-name-update-translation-in-buffer "${string}" "${style}" "${translation}" "${buffername}" "${placeholder}")`)
+    bridge.evalInEmacs(`(insert-translated-name-update-translation-in-buffer "${content}" "${style}" "${translation}" "${buffername}" "${placeholder}")`)
 }
 
 const browser = await puppeteer.launch({
     executablePath: '/usr/bin/google-chrome-stable',
-    headless: true
+    headless: true              // set false to launch chrome for debug
 });
 const page = await browser.newPage();
 
-
+// Don't call goto API everytime, it's slow.
+if (page.url() !== "https://www.deepl.com/translator") {
+    await page.goto('https://www.deepl.com/translator');
+}
