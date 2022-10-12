@@ -7,6 +7,7 @@ async function messageDispatcher(message: string) {
     const [content, style, buffername, placeholder] = JSON.parse(message)[1]
 
     // Don't call goto API everytime, it's slow.
+    bridge.messageToEmacs("Open DeepL website...")
     if (page.url() !== "https://www.deepl.com/translator") {
         await page.goto('https://www.deepl.com/translator');
     }
