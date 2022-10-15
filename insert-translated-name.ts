@@ -39,7 +39,7 @@ let chromePath = ""
 if (osType === "linux") {
     chromePath = "/usr/bin/google-chrome-stable"
 } else if (osType === "darwin") {
-    chromePath = "/Application/Google Chrome.app/Contents/MacOS/Google Chrome"
+    chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 }
 
 const browser = await puppeteer.launch({
