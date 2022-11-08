@@ -25,9 +25,10 @@
 
 ### 安装
 
-1. 安装[deno-bridge](https://github.com/manateelazycat/deno-bridge)
-2.  下载 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name) 里面的 insert-translated-name.el 放到 ~/elisp 目录
-3.  把下面的配置加入到 ~/.emacs 中
+1. 安装 [deno-bridge](https://github.com/manateelazycat/deno-bridge)
+2. 安装 [crow-translate](https://crow-translate.github.io/)
+3. 下载 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name) 里面的 insert-translated-name.el 放到 ~/elisp 目录
+4.  把下面的配置加入到 ~/.emacs 中
 ```
 (add-to-list 'load-path (expand-file-name "~/elisp"))
 (require 'insert-translated-name)
