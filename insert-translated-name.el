@@ -324,6 +324,8 @@
   "Return parse state of point from beginning of defun."
   (let ((point (point)))
     (beginning-of-defun)
+    (when (equal point (point))
+      (beginning-of-line))
     (parse-partial-sexp (point) point)))
 
 (defun insert-translated-name-in-commit-buffer-p ()
