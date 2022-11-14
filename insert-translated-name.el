@@ -150,6 +150,11 @@
   "Search and refacotry code base on ripgrep."
   :group 'insert-translated-name)
 
+(defcustom insert-translated-name-crow-engine "google"
+  "the crow app engine"
+  :group 'insert-translated-name
+  :type 'string)
+
 (defface insert-translated-name-font-lock-mark-word
   '((t (:foreground "White" :background "#007aff" :bold t)))
   "Face for keyword match."
@@ -400,7 +405,7 @@
 (deno-bridge-start "insert-translated-name" deno-translator-ts-path)
 
 (defun insert-translated-name-retrieve-translation (word style placeholder)
-  (deno-bridge-call "insert-translated-name" word style (buffer-name) placeholder))
+  (deno-bridge-call "insert-translated-name" word style (buffer-name) placeholder insert-translated-name-crow-engine))
 
 (provide 'insert-translated-name)
 
