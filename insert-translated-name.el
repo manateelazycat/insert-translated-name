@@ -57,7 +57,6 @@
 
 ;;; Customize:
 ;;
-;; `insert-translated-name-translate-engine'
 ;; `insert-translated-name-line-style-mode-list'
 ;; `insert-translated-name-underline-style-mode-list'
 ;; `insert-translated-name-camel-style-mode-list'
