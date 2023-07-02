@@ -18,17 +18,16 @@
 
 <img src="./pyim.gif">
 
-如果你安装了 [pyim](https://github.com/tumashu/pyim) 输入法，写英文注释的时候会自动激活切换输入法：
-1. 执行 ```insert-translated-name-insert``` 命令进入输入激活模式，并自动激活中文（不用手动切换中文输入法）
+如果你安装了 [pyim](https://github.com/tumashu/pyim) 输入法， 写英文注释的时候会自动激活切换输入法：
+1. 执行 ```insert-translated-name-insert``` 命令进入输入激活模式， 并自动激活中文（不用手动切换中文输入法）
 2. 正常输入中文
 3. 中文后输入空格自动查询翻译并替换成英文注释（并自动切换成英文输入状态）
 
 ### 安装
 
-1. 安装 [deno-bridge](https://github.com/manateelazycat/deno-bridge)
-2. 安装 [crow-translate](https://crow-translate.github.io/)
-3. 下载 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name) 里面的 insert-translated-name.el 放到 ~/elisp 目录
-4.  把下面的配置加入到 ~/.emacs 中
+1. 安装 [crow-translate](https://crow-translate.github.io/)
+2. 下载 [insert-translated-name](https://github.com/manateelazycat/insert-translated-name) 里面的 insert-translated-name.el 放到 ~/elisp 目录
+3.  把下面的配置加入到 ~/.emacs 中
 ```
 (add-to-list 'load-path (expand-file-name "~/elisp"))
 (require 'insert-translated-name)
@@ -53,7 +52,7 @@
 3. 在 magit commit buffer 中
 4. 在 minibuffer 中
 
-当然，你也可以在调用命令 ```insert-translated-name-insert``` 之前按一下 C-u 也是可以的。
+当然， 你也可以在调用命令 ```insert-translated-name-insert``` 之前按一下 C-u 也是可以的。
 
 下面是各种语言预定的风格, 如果你不喜欢默认风格, 可以定制以下变量的内容:
 ```

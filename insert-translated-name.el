@@ -65,6 +65,9 @@
 
 ;;; Change log:
 ;;
+;; 2023/07/02
+;;      * Remove `deno-bridge' dependence.
+;;
 ;; 2022/10/11
 ;;      * Use `deno-bridge' fetch translation.
 ;;
@@ -141,7 +144,6 @@
 ;;; Require
 (require 'json)
 (require 'subr-x)
-(require 'deno-bridge)
 
 ;;; Code:
 
@@ -401,11 +403,35 @@
       (insert-translated-name-retrieve-translation word style placeholder)
       )))
 
-(setq deno-translator-ts-path (concat (file-name-directory load-file-name) "insert-translated-name.ts"))
-(deno-bridge-start "insert-translated-name" deno-translator-ts-path)
+(defun insert-translated-name-process-sentinel (process event)
+  (when (string= event "finished\n")
+    (with-current-buffer (process-buffer process)
+      (let ((output (buffer-string)))
+        (insert-translated-name-update-translation-in-buffer
+         insert-translated-name-word
+         insert-translated-name-style
+         (alist-get 'translation (json-read-from-string output))
+         insert-translated-name-buffer-name
+         insert-translated-name-placeholder)
+
+        (kill-buffer " *insert-translated-name*")
+        ))))
+
+(defvar insert-translated-name-word nil)
+(defvar insert-translated-name-style nil)
+(defvar insert-translated-name-buffer-name nil)
+(defvar insert-translated-name-placeholder nil)
 
 (defun insert-translated-name-retrieve-translation (word style placeholder)
-  (deno-bridge-call "insert-translated-name" word style (buffer-name) placeholder insert-translated-name-crow-engine))
+  (setq insert-translated-name-word word)
+  (setq insert-translated-name-style style)
+  (setq insert-translated-name-buffer-name (buffer-name))
+  (setq insert-translated-name-placeholder placeholder)
+  (let ((process (start-process
+                  "insert-translated-name"
+                  " *insert-translated-name*"
+                  "crow" "-t" "en" "--json" "-e" insert-translated-name-crow-engine word)))
+    (set-process-sentinel process 'insert-translated-name-process-sentinel)))
 
 (provide 'insert-translated-name)
 
