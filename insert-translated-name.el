@@ -413,8 +413,6 @@
          (alist-get 'translation (json-read-from-string output))
          insert-translated-name-buffer-name
          insert-translated-name-placeholder)
-
-        (kill-buffer " *insert-translated-name*")
         ))))
 
 (defvar insert-translated-name-word nil)
@@ -427,6 +425,8 @@
   (setq insert-translated-name-style style)
   (setq insert-translated-name-buffer-name (buffer-name))
   (setq insert-translated-name-placeholder placeholder)
+  (when (get-buffer " *insert-translated-name*")
+    (kill-buffer " *insert-translated-name*"))
   (let ((process (start-process
                   "insert-translated-name"
                   " *insert-translated-name*"
