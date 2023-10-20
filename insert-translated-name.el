@@ -152,6 +152,11 @@
   "Search and refacotry code base on ripgrep."
   :group 'insert-translated-name)
 
+(defcustom insert-translated-name-program "crow"
+  "Use `crow' or `ollama' to translate input."
+  :group 'insert-translated-name
+  :type 'string)
+
 (defcustom insert-translated-name-crow-engine "google"
   "the crow app engine"
   :group 'insert-translated-name
@@ -161,6 +166,10 @@
   '((t (:foreground "White" :background "#007aff" :bold t)))
   "Face for keyword match."
   :group 'insert-translated-name)
+
+(defvar insert-translated-name-ollama-file (expand-file-name "ollama.py" (if load-file-name
+                                                                             (file-name-directory load-file-name)
+                                                                           default-directory)))
 
 (defvar insert-translated-name-origin-style-mode-list
   '(text-mode erc-mode rcirc-mode))
@@ -410,7 +419,9 @@
         (insert-translated-name-update-translation-in-buffer
          insert-translated-name-word
          insert-translated-name-style
-         (alist-get 'translation (json-read-from-string output))
+         (pcase insert-translated-name-program
+           ("crow" (alist-get 'translation (json-read-from-string output)))
+           ("ollama" (replace-regexp-in-string "\\'\\|\\'\\|\\.\\|\\,\\|\\?\\|\\!" "" (string-trim output))))
          insert-translated-name-buffer-name
          insert-translated-name-placeholder)
         ))))
@@ -427,10 +438,18 @@
   (setq insert-translated-name-placeholder placeholder)
   (when (get-buffer " *insert-translated-name*")
     (kill-buffer " *insert-translated-name*"))
-  (let ((process (start-process
-                  "insert-translated-name"
-                  " *insert-translated-name*"
-                  "crow" "-t" "en" "--json" "-e" insert-translated-name-crow-engine word)))
+  (let ((process (pcase insert-translated-name-program
+                   ("crow"
+                    (start-process
+                     "insert-translated-name"
+                     " *insert-translated-name*"
+                     "crow" "-t" "en" "--json" "-e" insert-translated-name-crow-engine word))
+                   ("ollama"
+                    (start-process
+                     "insert-translated-name"
+                     " *insert-translated-name*"
+                     "python" insert-translated-name-ollama-file (format "'%s'" word)
+                     )))))
     (set-process-sentinel process 'insert-translated-name-process-sentinel)))
 
 (provide 'insert-translated-name)
