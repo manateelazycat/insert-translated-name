@@ -37,7 +37,7 @@
 安装 crow 可以直接用在线翻译来翻译内容， 但是因为网络的问题， 有时候延时大了体验还是不爽的， 这时候可以 ollama 来驱动本地大模型来快速翻译， 我测试了一下都是秒回， 只不过本地大模型需要的内存较多， 内存紧张的用户建议还是用 crow 吧。
 
 下面是安装大模型的方式：
-1. 安装 ollama: `curl https://ollama.ai/install.sh | sh`, 其他平台安装方式请参考 [ollama](https://github.com/jmorganca/ollama) 官网
+1. 安装 ollama: linux 平台只需要一条命令自动安装， `curl https://ollama.ai/install.sh | sh`, 其他平台安装方式请参考 [ollama](https://github.com/jmorganca/ollama) 官网
 2. 下载 llama2-chinese 大模型： `ollama run llama2-chinese` 这条命令会自动下载 `llama2-chinese` 这个模型文件， 下载好了可以在终端测试一下
 3. 设置翻译程序： ```(setq insert-translated-name-program "ollama")```
 
