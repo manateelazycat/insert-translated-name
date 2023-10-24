@@ -2,14 +2,15 @@ import requests
 import json
 import sys
 
-input = sys.argv[1]
+model = sys.argv[1]
+input = sys.argv[2]
 
 url = 'http://localhost:11434/api/generate'
 
 data = {
-  "model": "llama2-chinese",
+  "model": model,
   "prompt": '''
-  Translate the following text to English, only return the content translated, no explaination:
+  Translate the following text to English, only return one content translated, no explaination:
   {}
 '''.format(input)
 }

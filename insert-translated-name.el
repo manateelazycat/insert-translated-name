@@ -162,6 +162,11 @@
   :group 'insert-translated-name
   :type 'string)
 
+(defcustom insert-translated-name-ollama-model-name "zephyr"
+  "The model name of ollama."
+  :group 'insert-translated-name
+  :type 'string)
+
 (defface insert-translated-name-font-lock-mark-word
   '((t (:foreground "White" :background "#007aff" :bold t)))
   "Face for keyword match."
@@ -421,7 +426,7 @@
          insert-translated-name-style
          (pcase insert-translated-name-program
            ("crow" (alist-get 'translation (json-read-from-string output)))
-           ("ollama" (replace-regexp-in-string "'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim output))))
+           ("ollama" (replace-regexp-in-string "\"\\|'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim output))))
          insert-translated-name-buffer-name
          insert-translated-name-placeholder)
         ))))
@@ -448,7 +453,10 @@
                     (start-process
                      "insert-translated-name"
                      " *insert-translated-name*"
-                     "python" insert-translated-name-ollama-file (format "'%s'" word)
+                     "python"
+                     insert-translated-name-ollama-file
+                     insert-translated-name-ollama-model-name
+                     (format "'%s'" word)
                      )))))
     (set-process-sentinel process 'insert-translated-name-process-sentinel)))
 
