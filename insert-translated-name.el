@@ -420,13 +420,14 @@
 (defun insert-translated-name-process-sentinel (process event)
   (when (string= event "finished\n")
     (with-current-buffer (process-buffer process)
-      (let ((output (buffer-string)))
+      (let* ((output (buffer-string))
+             (first-line (substring-no-properties output 0 (or (string-match "\n" output) (length output)))))
         (insert-translated-name-update-translation-in-buffer
          insert-translated-name-word
          insert-translated-name-style
          (pcase insert-translated-name-program
            ("crow" (alist-get 'translation (json-read-from-string output)))
-           ("ollama" (replace-regexp-in-string "\"\\|'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim output))))
+           ("ollama" (replace-regexp-in-string "\"\\|'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim first-line))))
          insert-translated-name-buffer-name
          insert-translated-name-placeholder)
         ))))
