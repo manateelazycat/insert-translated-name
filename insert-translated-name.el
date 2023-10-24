@@ -421,7 +421,7 @@
          insert-translated-name-style
          (pcase insert-translated-name-program
            ("crow" (alist-get 'translation (json-read-from-string output)))
-           ("ollama" (replace-regexp-in-string "\\'\\|\\'\\|\\.\\|\\,\\|\\?\\|\\!" "" (string-trim output))))
+           ("ollama" (replace-regexp-in-string "'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim output))))
          insert-translated-name-buffer-name
          insert-translated-name-placeholder)
         ))))
