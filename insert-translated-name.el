@@ -369,7 +369,7 @@
       (eq (get-text-property (point) 'face) 'font-lock-comment-face)))
 
 (defun insert-translated-name-convert-translation (translation style)
-  (let ((words (split-string translation " ")))
+  (let ((words (remove-if #'string-empty-p (split-string translation " "))))
     (cond ((string-equal style "line")
            (string-join (mapcar 'downcase words) "-"))
           ((string-equal style "underline")
