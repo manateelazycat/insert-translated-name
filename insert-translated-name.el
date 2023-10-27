@@ -144,6 +144,7 @@
 ;;; Require
 (require 'json)
 (require 'subr-x)
+(require 'cl-seq)
 
 ;;; Code:
 
@@ -369,7 +370,7 @@
       (eq (get-text-property (point) 'face) 'font-lock-comment-face)))
 
 (defun insert-translated-name-convert-translation (translation style)
-  (let ((words (remove-if #'string-empty-p (split-string translation " "))))
+  (let ((words (cl-remove-if #'string-empty-p (split-string translation " "))))
     (cond ((string-equal style "line")
            (string-join (mapcar 'downcase words) "-"))
           ((string-equal style "underline")
