@@ -163,7 +163,7 @@
   :group 'insert-translated-name
   :type 'string)
 
-(defcustom insert-translated-name-ollama-model-name "zephyr"
+(defcustom insert-translated-name-ollama-model-name "llama3:8b"
   "The model name of ollama."
   :group 'insert-translated-name
   :type 'string)
