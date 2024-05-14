@@ -473,24 +473,30 @@ and \"apikey\" as USER."
   (setq insert-translated-name-placeholder placeholder)
   (when (get-buffer " *insert-translated-name*")
     (kill-buffer " *insert-translated-name*"))
-  (if (and (string= insert-translated-name-program "llm") (require 'llm) insert-translated-name-llm-provider)
-      (llm-chat-async
-       insert-translated-name-llm-provider
-       (llm-make-simple-chat-prompt (format insert-translated-name-prompt word))
-       (lambda (text)
-         (let* ((translate (string-trim text))
-                (translate
-                 (pcase insert-translated-name-style
-                   ("origin" (replace-regexp-in-string "\"" "" (string-trim translate)))
-                   (_ (replace-regexp-in-string "\"\\|'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim translate))))))
-           (insert-translated-name-update-translation-in-buffer
-            insert-translated-name-word
-            insert-translated-name-style
-            translate
-            insert-translated-name-buffer-name
-            insert-translated-name-placeholder)))
-       (lambda (msg)
-          (error msg)))
+  (if (and (string= insert-translated-name-program "llm") insert-translated-name-llm-provider)
+      ;;If the LLM is activated
+      (progn
+        ;;If packages are not imported they will be imported automatically
+        (unless (featurep 'llm)
+          (require 'llm))
+        (llm-chat-async
+         insert-translated-name-llm-provider
+         (llm-make-simple-chat-prompt (format insert-translated-name-prompt word))
+         (lambda (text)
+           (let* ((translate (string-trim text))
+                  (translate
+                   (pcase insert-translated-name-style
+                     ("origin" (replace-regexp-in-string "\"" "" (string-trim translate)))
+                     (_ (replace-regexp-in-string "\"\\|'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim translate))))))
+             (insert-translated-name-update-translation-in-buffer
+              insert-translated-name-word
+              insert-translated-name-style
+              translate
+              insert-translated-name-buffer-name
+              insert-translated-name-placeholder)))
+         (lambda (msg)
+           (user-error (format "LLM Interface call failed:%s" msg)))))
+    ;; If not using LLM
     (let ((process (pcase insert-translated-name-program
                      ("crow"
                       (start-process
