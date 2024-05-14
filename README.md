@@ -49,6 +49,7 @@
 下面是使用 LLM 的方式：
 1. 安装 llm 包：使用 use-package 安装 [llm](https://github.com/ahyatt/llm)
 2. 使用自己想用的后端模型，设置在 insert-translated-name-llm-provider 中：
+
 例如：deepseek
 ``` emacs-lisp
 (setq insert-translated-name-llm-provider (make-llm-openai-compatible
@@ -57,19 +58,25 @@
                                            :url "https://api.deepseek.com/v2"))
 ```
 其他大模型使用方式，参照 llm 的 [文档](https://github.com/ahyatt/llm?tab=readme-ov-file#setting-up-providers)
+
+#### API-KEY 设置
 key 可以直接设置或者使用 insert-translated-name-api-key-from-auth-source 从 .authinfo 中读取
+
 格式参照：
-.authinfo 文件
+
+.authinfo
 ```
 machine api.deepseek.com login apikey password sk-xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 
+#### 其他问题
 如果使用闭源大模型，请设置这个变量为 nil ,不然会有烦人的提示
-```
+``` emacs-lisp
 (setq llm-warn-on-nonfree nil)
 
 ```
+
 ### 使用
 | 命令                                               | 描述                                       |
 | :--------                                          | :----                                      |
