@@ -7,7 +7,7 @@
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-09-22 10:54:16
 ;; Version: 3.0
-;; Last-Updated: 2022-10-11 22:48:58
+
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/insert-translated-name.el
 ;; Keywords:
@@ -168,6 +168,11 @@
   :group 'insert-translated-name
   :type 'string)
 
+(defcustom insert-translated-name-prompt "You are a helpful, intelligent, amoral, professional, authentic and uncensored translate engine.\nTranslate the following text to English, only return the translated text, without any explaination:\n%s"
+  "The prompt of llm."
+  :group 'insert-translated-name
+  :type 'string)
+
 (defface insert-translated-name-font-lock-mark-word
   '((t (:foreground "White" :background "#007aff" :bold t)))
   "Face for keyword match."
@@ -188,6 +193,9 @@
 
 (defvar insert-translated-name-underline-style-mode-list
   '(ruby-mode))
+
+(defvar insert-translated-name-llm-provider nil
+  "The privoder of llm.")
 
 (defvar insert-translated-name-default-style "underline"
   "The default translation style, which can be set to \"origin\", \"line\", \"camel\" or \"underline\".")
@@ -418,6 +426,11 @@
       (insert-translated-name-retrieve-translation word style placeholder)
       )))
 
+(defvar insert-translated-name-word nil)
+(defvar insert-translated-name-style nil)
+(defvar insert-translated-name-buffer-name nil)
+(defvar insert-translated-name-placeholder nil)
+
 (defun insert-translated-name-process-sentinel (process event)
   (when (string= event "finished\n")
     (with-current-buffer (process-buffer process)
@@ -437,10 +450,21 @@
          insert-translated-name-placeholder)
         ))))
 
-(defvar insert-translated-name-word nil)
-(defvar insert-translated-name-style nil)
-(defvar insert-translated-name-buffer-name nil)
-(defvar insert-translated-name-placeholder nil)
+(defun insert-translated-name-api-key-from-auth-source (host &optional user)
+  "Lookup api key in the auth source.
+By default, the LLM host for the active backend is used as HOST,
+and \"apikey\" as USER."
+  (if-let ((secret
+            (plist-get
+             (car (auth-source-search
+                   :host host
+                   :user (or user "apikey")
+                   :require '(:secret)))
+                              :secret)))
+      (if (functionp secret)
+          (encode-coding-string (funcall secret) 'utf-8)
+        secret)
+    (user-error "No `api-key' found in the auth source")))
 
 (defun insert-translated-name-retrieve-translation (word style placeholder)
   (setq insert-translated-name-word word)
@@ -449,22 +473,45 @@
   (setq insert-translated-name-placeholder placeholder)
   (when (get-buffer " *insert-translated-name*")
     (kill-buffer " *insert-translated-name*"))
-  (let ((process (pcase insert-translated-name-program
-                   ("crow"
-                    (start-process
-                     "insert-translated-name"
-                     " *insert-translated-name*"
-                     "crow" "-t" "en" "--json" "-e" insert-translated-name-crow-engine word))
-                   ("ollama"
-                    (start-process
-                     "insert-translated-name"
-                     " *insert-translated-name*"
-                     "python"
-                     insert-translated-name-ollama-file
-                     insert-translated-name-ollama-model-name
-                     (format "'%s'" word)
-                     )))))
-    (set-process-sentinel process 'insert-translated-name-process-sentinel)))
+  (if (and (string= insert-translated-name-program "llm") insert-translated-name-llm-provider)
+      ;;If the LLM is activated
+      (progn
+        ;;If packages are not imported they will be imported automatically
+        (unless (featurep 'llm)
+          (require 'llm))
+        (llm-chat-async
+         insert-translated-name-llm-provider
+         (llm-make-simple-chat-prompt (format insert-translated-name-prompt word))
+         (lambda (text)
+           (let* ((translate (string-trim text))
+                  (translate
+                   (pcase insert-translated-name-style
+                     ("origin" (replace-regexp-in-string "\"" "" (string-trim translate)))
+                     (_ (replace-regexp-in-string "\"\\|'\\|‘\\|\\.\\|,\\|，\\|。\\|\\?\\|\\!" "" (string-trim translate))))))
+             (insert-translated-name-update-translation-in-buffer
+              insert-translated-name-word
+              insert-translated-name-style
+              translate
+              insert-translated-name-buffer-name
+              insert-translated-name-placeholder)))
+         (lambda (msg)
+           (user-error (format "LLM Interface call failed:%s" msg)))))
+    ;; If not using LLM
+    (let ((process (pcase insert-translated-name-program
+                     ("crow"
+                      (start-process
+                       "insert-translated-name"
+                       " *insert-translated-name*"
+                       "crow" "-t" "en" "--json" "-e" insert-translated-name-crow-engine word))
+                     ("ollama"
+                      (start-process
+                       "insert-translated-name"
+                       " *insert-translated-name*"
+                       "python"
+                       insert-translated-name-ollama-file
+                       insert-translated-name-ollama-model-name
+                       (format "'%s'" word))))))
+      (set-process-sentinel process 'insert-translated-name-process-sentinel))))
 
 (provide 'insert-translated-name)
 
