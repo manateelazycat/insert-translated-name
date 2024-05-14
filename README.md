@@ -55,7 +55,7 @@
 (setq insert-translated-name-llm-provider (make-llm-openai-compatible
                                            :key (insert-translated-name-api-key-from-auth-source "api.deepseek.com")
                                            :chat-model "deepseek-chat"
-                                           :url "https://api.deepseek.com/v2"))
+                                           :url "https://api.deepseek.com/v1"))
 ```
 其他大模型使用方式，参照 llm 的 [文档](https://github.com/ahyatt/llm?tab=readme-ov-file#setting-up-providers)
 
