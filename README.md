@@ -48,10 +48,13 @@
 
 下面是使用 LLM 的方式：
 1. 安装 llm 包：使用 use-package 安装 [llm](https://github.com/ahyatt/llm)
-2. 使用自己想用的后端模型，设置在 insert-translated-name-llm-provider 中：
+2. 设置 insert-translated-name-program 为 llm
+2. 使用自己想用的后端模型，设置在 insert-translated-name-llm-provider 中（记得要用 require 引入相应的包）
 
 例如：deepseek
 ``` emacs-lisp
+(setq insert-translated-name-program "llm")
+(require 'llm-openai)
 (setq insert-translated-name-llm-provider (make-llm-openai-compatible
                                            :key (insert-translated-name-api-key-from-auth-source "api.deepseek.com")
                                            :chat-model "deepseek-chat"
